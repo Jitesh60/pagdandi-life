@@ -3,11 +3,28 @@
  * Used by layout chrome, structured data and every enquiry CTA.
  */
 
+/**
+ * The origin this deploy serves from.
+ *
+ * Drives canonicals, the sitemap, OG URLs and JSON-LD, so a wrong value here
+ * points search engines at the old site. Netlify sets `URL` for production and
+ * `DEPLOY_PRIME_URL` for branch and preview deploys, so those are picked up
+ * automatically; `NEXT_PUBLIC_SITE_URL` overrides everything when set.
+ */
+function resolveSiteUrl(): string {
+  const candidate =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.URL ||
+    process.env.DEPLOY_PRIME_URL ||
+    "https://pagdandilife.com";
+  return candidate.replace(/\/+$/, "");
+}
+
 export const site = {
   name: "PagdandiLife",
   tagline: "Camping, trekking and outdoor gear",
-  /** Update to the production origin before launch — drives canonicals and sitemap. */
-  url: "https://pagdandilife.com",
+  /** Resolved per deploy — see resolveSiteUrl above. */
+  url: resolveSiteUrl(),
   description:
     "Camping, trekking and outdoor gear for the Himalaya — tents, stoves, rucksacks, sleeping bags and apparel, stocked and rented from our store in Kathgodam, Uttarakhand.",
   locale: "en_IN",

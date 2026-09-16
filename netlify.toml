@@ -1,0 +1,33 @@
+# Netlify build configuration.
+#
+# No secrets are required. The catalogue is a committed snapshot, so the build
+# makes no network calls and needs no credentials — the PAGDANDI_* variables in
+# .env.local are used only by `pnpm ingest`, which is run by hand, never here.
+
+[build]
+  command = "pnpm build"
+  publish = ".next"
+
+[build.environment]
+  # Match local development. Node 22 also runs the ingest script's TypeScript
+  # natively, should anyone run it from a Netlify shell.
+  NODE_VERSION = "22"
+  # Ensure pnpm is used rather than npm's lockfile resolution.
+  NETLIFY_USE_PNPM = "true"
+
+# Serves the App Router, ISR revalidation and the on-demand rendering that
+# dashboard-created product pages rely on.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Downloaded product imagery is content-addressed, so it can be cached hard.
+[[headers]]
+  for = "/catalog/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

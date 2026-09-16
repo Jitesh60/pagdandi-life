@@ -45,6 +45,31 @@ pnpm ingest --refetch     # re-pull from the source store (needs a session)
 pnpm build:redirects      # regenerate legacy WordPress → new URL redirects
 ```
 
+## Deploying to Netlify
+
+**No environment variables are required.** The catalogue is a committed
+snapshot, so `next build` makes no network calls and needs no credentials. The
+`PAGDANDI_*` values in `.env.local` are used only by `pnpm ingest`, which is run
+by hand and never during a build.
+
+`netlify.toml` sets the build command, pins Node 22 and enables
+`@netlify/plugin-nextjs` (needed for the App Router, ISR revalidation, and the
+on-demand rendering that dashboard-created product pages use).
+
+### Optional
+
+| Variable | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SITE_URL` | Overrides the site origin used for canonicals, the sitemap, OG tags and JSON-LD. |
+
+Netlify supplies `URL` and `DEPLOY_PRIME_URL` automatically, and
+`src/lib/site.ts` reads them, so canonicals resolve to the deploy's own domain
+rather than the old WordPress site. Set `NEXT_PUBLIC_SITE_URL` once a custom
+domain is attached.
+
+`robots.ts` reads Netlify's `CONTEXT` and blocks indexing on preview and branch
+deploys, so they never compete with production in search.
+
 ## Architecture notes
 
 | Concern | Approach |
