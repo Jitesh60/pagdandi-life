@@ -1,26 +1,215 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------
+   PagdandiLife design tokens — editorial / quiet luxury.
+   Muted earth palette, no pure black or white, depth from tone
+   rather than elevation.
+   ------------------------------------------------------------------ */
+@theme {
+  /* Surfaces */
+  --color-paper: #faf8f4;
+  --color-paper-alt: #f2eee7;
+  --color-paper-deep: #ebe5da;
+
+  /* Ink. ink-faint and clay are set at the lightest values that still clear
+     WCAG AA (4.5:1) on both paper and paper-alt — hierarchy comes from size
+     and weight rather than from dropping contrast below the floor. */
+  --color-ink: #1c1b18;
+  --color-ink-muted: #6b6862;
+  --color-ink-faint: #6e6960;
+
+  /* Structure — used sparingly; space separates, not lines */
+  --color-line: #e2dcd2;
+  --color-line-soft: #eee9e0;
+
+  /* Panel behind product imagery. The palette otherwise avoids pure white,
+     but this is a deliberate exception: most supplier shots are cutouts with
+     white already baked in, and any tint here would frame them in a visible
+     box. White lets those blend and sits cleanly against the warm page. */
+  --color-panel: #ffffff;
+
+  /* Brand accent: a single deep moss green */
+  --color-moss: #3f5138;
+  --color-moss-soft: #6b7f5e;
+  --color-moss-wash: #eef0ea;
+
+  /* Secondary warm accent, reserved for price reductions */
+  --color-clay: #875c3d;
+
+  /* Type */
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Fluid display scale — wide range is the point: quiet body, large display */
+  --text-display-xl: clamp(2.75rem, 7vw, 6rem);
+  --text-display-lg: clamp(2.25rem, 5vw, 4rem);
+  --text-display-md: clamp(1.75rem, 3.5vw, 2.75rem);
+  --text-display-sm: clamp(1.375rem, 2.2vw, 1.75rem);
+
+  /* Editorial eyebrow: small, wide-tracked, uppercase */
+  --text-eyebrow: 0.6875rem;
+
+  /* Generous section rhythm — calm comes from vertical space */
+  --spacing-section: clamp(4.5rem, 10vw, 10rem);
+  --spacing-section-sm: clamp(3rem, 6vw, 5.5rem);
+
+  /* Near-zero radius and shadow */
+  --radius-subtle: 2px;
+
+  /* Slow, unhurried motion */
+  --ease-calm: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* ------------------------------------------------------------------
+   Base
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    scroll-behavior: smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Visible, on-brand focus ring */
+  :focus-visible {
+    outline: 2px solid var(--color-moss);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background-color: var(--color-moss);
+    color: var(--color-paper);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------
+   Reusable editorial primitives
+   ------------------------------------------------------------------ */
+@utility eyebrow {
+  font-size: var(--text-eyebrow);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  font-weight: 500;
+}
+
+/* Skeleton shimmer — only ever used for genuine waits */
+@utility skeleton {
+  background-color: var(--color-paper-deep);
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.55) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s var(--ease-calm) infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ------------------------------------------------------------------
+   Accessibility: honour reduced-motion everywhere, no exceptions
+   ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Sanitised product description HTML from the ingest step. */
+@utility prose-editorial {
+  & p { margin-block: 0.85em; }
+  & ul, & ol { margin-block: 0.85em; padding-inline-start: 1.25em; }
+  & ul { list-style: disc; }
+  & ol { list-style: decimal; }
+  & li { margin-block: 0.3em; }
+  & h3, & h4 {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-ink);
+    margin-block: 1.6em 0.6em;
+  }
+  & strong { color: var(--color-ink); font-weight: 500; }
+  & table { width: 100%; border-collapse: collapse; margin-block: 1.2em; }
+  & th, & td {
+    text-align: start;
+    padding: 0.6em 0.9em 0.6em 0;
+    border-bottom: 1px solid var(--color-line-soft);
+    vertical-align: top;
+  }
+  & th { color: var(--color-ink); font-weight: 500; }
+  & > :first-child { margin-block-start: 0; }
+  & > :last-child { margin-block-end: 0; }
+}
+
+/* Scroll reveals — driven by an attribute, not React state. */
+[data-reveal] {
+  transition:
+    opacity 900ms var(--ease-calm),
+    transform 900ms var(--ease-calm);
+}
+[data-reveal="pending"] {
+  opacity: 0;
+  transform: translateY(12px);
+}
+[data-reveal="shown"] {
+  opacity: 1;
+  transform: none;
+}
+
+/* ------------------------------------------------------------------
+   Chart tokens.
+   A single-hue moss ramp, light -> dark, with monotonically decreasing
+   lightness (verified). Charts here encode one measure at a time, so a
+   categorical palette is never needed and no two hues sit adjacent.
+   `--chart-negative` is a reserved status colour for cancelled/overdue
+   and is always shipped with a text label, never colour alone.
+
+   `static` is required: the ramp step is chosen at runtime from a value, so
+   the variable names are built by interpolation and never appear literally in
+   the source. Without it Tailwind tree-shakes the steps it cannot see and
+   those bars render transparent.
+   ------------------------------------------------------------------ */
+@theme static {
+  --color-chart-1: #dfe4db;
+  --color-chart-2: #c2cbbc;
+  --color-chart-3: #a3b09c;
+  --color-chart-4: #84957c;
+  --color-chart-5: #657a5d;
+  --color-chart-6: #3f5138;
+  --color-chart-negative: #875c3d;
+  --color-chart-grid: #ebe7e0;
 }
